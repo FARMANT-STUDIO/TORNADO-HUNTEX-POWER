@@ -1,0 +1,273 @@
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tornado Huntex Power</title>
+<style>
+*{box-sizing:border-box;user-select:none}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080c11;color:#fff;font-family:Arial,sans-serif}button{border:2px solid #536273;background:#17212c;color:#fff;padding:12px 22px;border-radius:10px;cursor:pointer;font-size:18px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:hover{background:#273646}.hidden{display:none!important}
+#menu{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at center,#1b2734,#080c11 70%)}.menuBox{width:min(430px,92vw);padding:42px 30px;border:2px solid #465565;border-radius:22px;background:#101821ee;box-shadow:0 20px 70px #000}.logo{font-size:clamp(43px,8vw,75px);line-height:.82;font-weight:900;letter-spacing:5px;margin-bottom:45px}.mainButton,.menuButton{width:250px}.mainButton{font-size:28px;font-weight:bold}.menuButton{margin-top:15px}
+#selection{display:none;width:100vw;height:100vh;overflow-y:auto;padding:25px;background:#0a1017}.selectionTitle{text-align:center;font-size:36px;font-weight:bold;margin-bottom:28px}.cards{width:min(1150px,95vw);margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}.card{background:#131d27;border:2px solid #3e4d5d;border-radius:15px;padding:20px;text-align:center}.card h2{margin-top:0}.cardInfo{color:#b8c2cd;min-height:55px;line-height:1.4;margin:15px 0}.backButton{display:block;margin:28px auto}.record{background:#151f29;border:1px solid #485766;border-radius:10px;padding:15px}.record+.record{margin-top:12px}.recordTitle{font-size:20px;font-weight:bold}.small{color:#adb8c4;font-size:14px;line-height:1.5}
+#game{display:none;position:relative;width:100vw;height:100vh;overflow:hidden}#map{position:absolute;inset:0;overflow:hidden;background:#789562}.road{position:absolute;background:#45494e;z-index:1}.roadH{width:100%;height:46px;left:0;top:50%;transform:translateY(-50%)}.roadV{width:46px;height:100%;top:0;left:50%;transform:translateX(-50%)}.street{opacity:.9}.section{position:absolute;border:1px solid #ffffff14;pointer-events:none}.house{position:absolute;width:42px;height:32px;background:#b39a70;border:2px solid #625039;border-radius:4px;z-index:4;transition:.25s}.house:before{content:"";position:absolute;left:5px;top:-9px;width:28px;height:15px;background:#764d3d;transform:skewX(-25deg)}.house.destroyed{opacity:.2;transform:scale(.75)}
+.terrain{position:absolute;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:2}.yellow{border:4px solid #e8d13a;background:#e8d13a28}.red{border:4px solid #e34343;background:#e3434328}.civilian{position:absolute;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);z-index:8;border:1px solid #111}.healthy{background:#31cf5d}.injured{background:#e3cf38}.critical{background:#df4141}.dead{background:#111}.inside{opacity:0}
+.chaserCar{position:absolute;width:46px;height:27px;border-radius:8px;border:2px solid #101010;transform:translate(-50%,-50%);z-index:12;display:flex;align-items:center;justify-content:center;font-size:22px;transition:left .12s linear,top .12s linear,opacity .3s}.chaserCar.white{background:#eee}.chaserCar.green{background:#39c85a}.chaserCar.yellow{background:#e4ce36}.chaserCar.red{background:#df4141}.chaserCar.orange{background:#ee8127}.hiddenCar{opacity:.18}.destroyedCar{opacity:.12}.carMarker{position:absolute;z-index:5;transform:translate(-50%,-50%);font-size:27px}
+#tornadoContainer{position:absolute;transform:translate(-50%,-50%);z-index:20;pointer-events:none}#tornado{border-radius:50%;border:5px solid #eee;box-shadow:0 0 35px #fff5}#tornado2{position:absolute;border-radius:50%;border:5px solid #fff5;pointer-events:none}.vortex{position:absolute;width:32%;height:32%;border-radius:50%;border:4px solid #fffb;transform:translate(-50%,-50%)}.fire{background:radial-gradient(circle,#ffcf42,#ff5a1f 45%,transparent 72%)}.trailDot{position:absolute;width:7px;height:7px;border-radius:50%;background:#424c5680;transform:translate(-50%,-50%);z-index:3}.fireTrail{background:#ff5b2588;box-shadow:0 0 8px #ff5b25}
+#hud{position:absolute;top:12px;left:12px;right:12px;z-index:50;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.hud{background:#091019d9;border:1px solid #617080;border-radius:8px;padding:8px 12px;font-weight:bold}#joystick{position:absolute;z-index:60;width:150px;height:150px;left:18px;bottom:18px;border-radius:50%;background:#ffffff18;border:3px solid #ffffff55;touch-action:none}#stick{position:absolute;width:58px;height:58px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:#ffffff55;border:2px solid white}
+#analysis{display:none;position:absolute;z-index:100;inset:0;align-items:center;justify-content:center;background:#030609df}.analysisBox{width:min(720px,92vw);max-height:90vh;overflow-y:auto;background:#111a23;border:2px solid #566677;border-radius:16px;padding:25px}.analysisBox h1{text-align:center}.line{padding:9px 0;border-bottom:1px solid #303c48}input{width:100%;padding:12px;color:#fff;background:#080d13;border:1px solid #59697a;border-radius:8px;margin:8px 0 15px;font-size:16px}
+
+#warning{position:absolute;inset:0;z-index:80;display:none;background:linear-gradient(135deg,#789562,#647d52);overflow:hidden;pointer-events:none}
+#scanner{position:absolute;right:22px;top:18px;width:185px;height:92px;background:#fff;border:4px solid #ddd;box-shadow:0 0 28px #fff;overflow:hidden}
+#scanner:after{content:"";position:absolute;top:0;left:-25%;width:18%;height:100%;background:#fff;box-shadow:0 0 18px #fff;animation:scan 1s linear infinite}@keyframes scan{from{left:-25%}to{left:110%}}
+#warningHook{position:absolute;left:20px;bottom:18px;width:240px;height:170px;border-left:22px solid #a34be0;border-bottom:22px solid #29cc64;border-right:22px solid #f0d438;border-radius:0 0 120px 0;transform:rotate(-18deg)}
+#warningHook:after{content:"";position:absolute;right:-12px;bottom:-42px;width:80px;height:80px;border-radius:50%;background:#e34242;border:10px solid #f0d438}
+#warningTitle{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);width:94%;text-align:center;font-size:clamp(28px,5vw,58px);font-weight:900;text-shadow:0 4px 12px #000;letter-spacing:2px}
+#warningSub{position:absolute;left:50%;top:43%;transform:translateX(-50%);width:94%;text-align:center;font-size:clamp(18px,3vw,34px);font-weight:800;text-shadow:0 3px 10px #000}
+#warningCount{position:absolute;right:25px;bottom:25px;background:#070b0edb;border:2px solid white;border-radius:10px;padding:10px 16px;font-size:24px;font-weight:900}
+
+@media (max-width:600px){button{min-height:48px;min-width:120px}.mainButton,.menuButton{width:min(290px,82vw)}.menuBox{padding:30px 18px}.logo{margin-bottom:32px}.selectionTitle{font-size:30px}.cards{grid-template-columns:1fr;gap:14px}.card{padding:18px}.card button{width:min(220px,80vw)}.backButton{width:min(220px,80vw)}#hud{top:8px;left:8px;right:8px;gap:4px;flex-wrap:wrap}.hud{font-size:13px;padding:7px 8px}#joystick{width:150px;height:150px;left:14px;bottom:14px}}
+</style>
+</head>
+<body>
+<div id="menu"><div class="menuBox"><div class="logo">TORNADO<br>HUNTEX<br>POWER</div><button id="play" class="mainButton">OYNA</button><br><button id="records" class="menuButton">HORTUM KAYITLARI</button></div></div>
+<div id="selection"><div id="title" class="selectionTitle">ŞEHİR SEÇ</div><div id="cards" class="cards"></div><button id="back" class="backButton">GERİ</button></div>
+<div id="game"><div id="map"></div><div id="warning"><div id="scanner"></div><div id="warningHook"></div><div id="warningTitle"></div><div id="warningSub"></div><div id="warningCount">10</div></div><div id="trail"></div><div id="tornadoContainer"><div id="tornado"></div><div id="tornado2" class="hidden"></div><div id="v1" class="vortex hidden"></div><div id="v2" class="vortex hidden"></div></div><div id="hud"><div id="city" class="hud"></div><div id="type" class="hud"></div><div id="ef" class="hud">EF1</div><div id="mph" class="hud">98 MPH</div><div id="timer" class="hud">00:50</div></div><div id="joystick"><div id="stick"></div></div><div id="analysis"><div class="analysisBox"><h1>HORTUM ANALİZİ</h1><label>Hortum adı:</label><input id="name" placeholder="Örn. Bilecik Canavarı"><div id="analysisText"></div><br><button id="save">KAYDET</button> <button id="analysisMenu">ANA MENÜ</button></div></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const cities={
+ Bilecik:{sections:6,yellow:2,red:3,info:'Dağların çok olduğu şehir! Yık geç.'},
+ Bursa:{sections:8,yellow:1,red:2,info:'Ova ve dağlar harika!'},
+ Eskişehir:{sections:5,yellow:3,red:5,info:'Açık ve düz alanlar!'},
+ 'Oklahoma City':{sections:10,yellow:0,red:0,info:'Çok düz! Yavaşlamak yok!'},
+ Antalya:{sections:12,yellow:5,red:7,info:'Deniz ve dağlık alanlar!'}
+};
+const types={
+ Rope:{radius:45,speed:3,time:50,color:'#eee'},Wedge:{radius:105,speed:2.4,time:100,color:'#ddd'},Multivortex:{radius:70,speed:2.7,time:70,color:'#ddd'},Cone:{radius:72,speed:2.7,time:80,color:'#ddd'},'Supercell Tornado':{radius:72,speed:4,time:190,color:'#ddd'},'Rain-Wrapped Tornado':{radius:65,speed:4.5,time:60,color:'#fff'},'Dust Devil':{radius:35,speed:3.5,time:20,color:'#e6d43b'},Firenado:{radius:65,speed:3.1,time:40,color:'#f05b27'},'Twin Tornado':{radius:95,speed:2.7,time:50,color:'#ddd'}
+};
+let cityName='',typeName='',x=innerWidth/2,y=innerHeight/2,jx=0,jy=0,ef=1,previousEF=1,mph=98,end=0,last=0,trailT=0,houses=[],civilians=[],chasers=[],chaserCasualties=0,chaserImpactDetails=[],trailLength=0,maxWidth=0,mapCleared=false;
+let records=JSON.parse(localStorage.getItem('THPRecords')||'[]');let warningActive=false,warningEnd=0,warningPeople=[];
+function fmt(s){return `${Math.floor(s/60)} dk ${s%60} sn`}
+const efRanges={1:[86,110],2:[111,135],3:[136,165],4:[166,200],5:[201,260]};
+function randomMPH(level){let r=efRanges[level]||efRanges[1];return Math.floor(r[0]+Math.random()*(r[1]-r[0]+1))}
+function efRangeText(level){let r=efRanges[level];return level===5?'>200 MPH':`${r[0]}-${r[1]} MPH`}
+function setEFVisual(){
+  const colors={1:'#2bd65b',2:'#f1d438',3:'#f28a24',4:'#e43b3b',5:'#a83bd4'};
+  $('tornado').style.borderColor=colors[ef];
+  $('tornado').style.boxShadow=`0 0 35px ${colors[ef]}88`;
+  if(ef!==previousEF){mph=randomMPH(ef);previousEF=ef;}
+}
+function twinOffset(){return typeName==='Twin Tornado'?types[typeName].radius*2:0}
+function tornadoCenters(){
+  if(typeName==='Twin Tornado')return [{x:x,y:y},{x:x+twinOffset(),y:y}];
+  return [{x:x,y:y}];
+}
+function nearestCenter(px,py){let cs=tornadoCenters();return cs.reduce((best,c)=>Math.hypot(c.x-px,c.y-py)<Math.hypot(best.x-px,best.y-py)?c:best,cs[0])}
+function secondaryVortexPositions(){
+  if(typeName==='Multivortex'){let a=performance.now()/400,r=types[typeName].radius*.85;return [{x:x+Math.cos(a)*r,y:y+Math.sin(a)*r},{x:x+Math.cos(a+Math.PI)*r,y:y+Math.sin(a+Math.PI)*r}]}
+  return [];
+}
+function visualWidth(){
+  const t=types[typeName];
+  if(typeName==='Twin Tornado') return t.radius*4;
+  if(typeName==='Multivortex') return t.radius*2+t.radius*1.7;
+  return t.radius*2;
+}
+function clearEverythingForEF5(){
+  if(mapCleared)return;
+  mapCleared=true;
+  $('map').querySelectorAll('.road,.street,.section,.house,.civilian,.chaserCar,.carMarker,.terrain').forEach(e=>e.remove());
+  houses.forEach(h=>h.destroyed=true);
+  civilians.forEach(p=>{p.dead=true;p.state='dead'});
+  chasers.forEach(c=>c.state='dead');
+}
+function menu(){ $('menu').style.display='flex';$('selection').style.display='none';$('game').style.display='none'}
+function citySelect(){ $('menu').style.display='none';$('selection').style.display='block';$('game').style.display='none';$('title').textContent='ŞEHİR SEÇ';$('cards').innerHTML='';Object.entries(cities).forEach(([n,c])=>{let e=document.createElement('div');e.className='card';e.innerHTML=`<h2>${n}</h2><div class="cardInfo">${c.info}</div><button>SEÇ</button>`;e.querySelector('button').onclick=()=>typeSelect(n);$('cards').appendChild(e)})}
+function typeSelect(city){
+  cityName=city;
+  $('title').textContent='TORNADO TÜRÜ SEÇ';
+  $('cards').innerHTML='';
+  Object.entries(types).forEach(([tName,t])=>{
+    const card=document.createElement('div');
+    card.className='card';
+    const h=document.createElement('h2');
+    h.textContent=tName;
+    const info=document.createElement('div');
+    info.className='small';
+    info.textContent='Süre: '+fmt(t.time);
+    const br=document.createElement('br');
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='selectTypeBtn';
+    btn.textContent='SEÇ';
+    btn.addEventListener('click',function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      start(tName);
+    });
+    card.append(h,info,br,btn);
+    $('cards').appendChild(card);
+  });
+}
+function start(n){typeName=n;ef=1;previousEF=1;mph=randomMPH(1);trailLength=0;maxWidth=0;mapCleared=false;houses=[];civilians=[];chasers=[];chaserCasualties=0;chaserImpactDetails=[];warningPeople=[];$('menu').style.display='none';$('selection').style.display='none';$('game').style.display='block';$('map').innerHTML='';$('trail').innerHTML='';$('analysis').style.display='none';$('warning').style.display='block';$('tornadoContainer').style.display='none';x=innerWidth/2;y=innerHeight/2;jx=jy=0;let t=types[n];$('city').textContent=cityName.toUpperCase();$('type').textContent=n.toUpperCase();$('ef').textContent='EF1';$('mph').textContent=mph+' MPH';$('tornado').style.width=t.radius*2+'px';$('tornado').style.height=t.radius*2+'px';$('tornado').style.borderColor='#2bd65b';$('tornado').style.boxShadow='0 0 35px #2bd65b88';$('tornado2').style.borderColor='#2bd65b';$('tornado2').style.boxShadow='0 0 35px #2bd65b88';$('tornado2').style.width=t.radius*2+'px';$('tornado2').style.height=t.radius*2+'px';$('tornado2').classList.toggle('hidden',n!=='Twin Tornado');$('tornado').classList.toggle('fire',n==='Firenado');$('v1').classList.toggle('hidden',n!=='Multivortex');$('v2').classList.toggle('hidden',n!=='Multivortex');buildWarning();warningActive=true;warningEnd=performance.now()+10000;$('warningTitle').textContent=`[ ${cityName.toUpperCase()} ] TORNADO WARNING!`;$('warningSub').textContent=`TORNADO NEAR ${cityName.toUpperCase()}`;$('warningCount').textContent='10';last=performance.now();requestAnimationFrame(loop)}
+function buildWarning(){const m=$('map');m.innerHTML='';warningPeople=[];for(let i=0;i<18;i++){let p=document.createElement('div');p.className='civilian healthy';let px=5+Math.random()*90,py=5+Math.random()*90;p.style.left=px+'%';p.style.top=py+'%';m.appendChild(p);warningPeople.push({element:p,x:px/100*innerWidth,y:py/100*innerHeight})}}
+function warningUpdate(now){let left=Math.max(0,Math.ceil((warningEnd-now)/1000));$('warningCount').textContent=String(left);warningPeople.forEach(p=>{let dx=p.x-innerWidth/2,dy=p.y-innerHeight/2,l=Math.hypot(dx,dy)||1;p.x+=dx/l*.5;p.y+=dy/l*.5;p.element.style.left=p.x+'px';p.element.style.top=p.y+'px'});if(now>=warningEnd){warningActive=false;$('warning').style.display='none';$('tornadoContainer').style.display='block';build();end=performance.now()+types[typeName].time*1000;last=performance.now()}}
+function build(){let m=$('map');m.innerHTML='';if(['Bilecik','Bursa'].includes(cityName)){let h=document.createElement('div');h.className='road roadH';m.appendChild(h);let v=document.createElement('div');v.className='road roadV';m.appendChild(v);for(let i=0;i<4;i++){let s=document.createElement('div');s.className='road street';s.style.width='180px';s.style.height='16px';s.style.left=(5+Math.random()*75)+'%';s.style.top=(15+Math.random()*70)+'%';s.style.transform=`rotate(${Math.random()*25-12}deg)`;m.appendChild(s)}}if(cityName==='Oklahoma City'){for(let i=0;i<7;i++){let r=document.createElement('div');r.className='road street';r.style.width='100%';r.style.height='20px';r.style.top=(8+i*14)+'%';m.appendChild(r)}for(let i=0;i<5;i++){let r=document.createElement('div');r.className='road street';r.style.width='15px';r.style.height='100%';r.style.left=(12+i*18)+'%';m.appendChild(r)}}let count=cities[cityName].sections,cols=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/cols);for(let i=0;i<count;i++){let s=document.createElement('div');s.className='section';s.style.left=(i%cols)/cols*100+'%';s.style.top=Math.floor(i/cols)/rows*100+'%';s.style.width=100/cols+'%';s.style.height=100/rows+'%';m.appendChild(s)}for(let i=0;i<count*7;i++){let h=document.createElement('div');h.className='house';let px,py;do{px=5+Math.random()*90;py=5+Math.random()*90}while(['Bilecik','Bursa'].includes(cityName)&&(Math.abs(px-50)<7||Math.abs(py-50)<7));h.style.left=px+'%';h.style.top=py+'%';m.appendChild(h);houses.push({element:h,x:px/100*innerWidth,y:py/100*innerHeight,destroyed:false})}for(let i=0;i<28;i++){let p=document.createElement('div');p.className='civilian healthy';let px=5+Math.random()*90,py=5+Math.random()*90;p.style.left=px+'%';p.style.top=py+'%';m.appendChild(p);civilians.push({element:p,x:px/100*innerWidth,y:py/100*innerHeight,state:'healthy',inside:false,house:null,dead:false})}['white','green','yellow','red','orange'].forEach((c,i)=>{let car=document.createElement('div');car.className='chaserCar '+c;car.textContent='🚙';let px=10+i*18,py=20+Math.random()*55;car.style.left=px+'%';car.style.top=py+'%';m.appendChild(car);chasers.push({color:c,element:car,x:px/100*innerWidth,y:py/100*innerHeight,state:'driving',inside:false,timer:0,targetX:innerWidth/2,targetY:innerHeight/2})});terrain('yellow',cities[cityName].yellow);terrain('red',cities[cityName].red)}
+function terrain(cls,n){for(let i=0;i<n;i++){let z=document.createElement('div');z.className='terrain '+cls;let s=80+Math.random()*100;z.style.width=s+'px';z.style.height=s+'px';z.style.left=(5+Math.random()*90)+'%';z.style.top=(5+Math.random()*90)+'%';$('map').appendChild(z)}}
+function loop(now){if($('game').style.display!=='block'||$('analysis').style.display==='flex')return;if(warningActive){warningUpdate(now);last=now;requestAnimationFrame(loop);return}let dt=Math.min(35,now-last);last=now;let t=types[typeName],speed=t.speed;document.querySelectorAll('.terrain').forEach(z=>{let r=z.getBoundingClientRect(),d=Math.hypot(x-r.left-r.width/2,y-r.top-r.height/2);if(d<r.width/2+t.radius/2)speed*=z.classList.contains('yellow')?.72:.4});x+=jx*speed*dt/16.67;y+=jy*speed*dt/16.67;x=Math.max(10,Math.min(innerWidth-10-twinOffset(),x));y=Math.max(10,Math.min(innerHeight-10,y));$('tornadoContainer').style.left=x+'px';$('tornadoContainer').style.top=y+'px';vortex(now);positionTwinTornado();civiliansUpdate(t);chasersUpdate(t);buildings(t);applySecondaryTornadoDamage(t);calculateEF();maxWidth=Math.max(maxWidth,visualWidth());trail(dt);hud();if(now>=end){finish();return}requestAnimationFrame(loop)}
+function vortex(now){
+  if(typeName!=='Multivortex')return;
+  let a=now/400,r=types[typeName].radius*.85;
+  $('v1').style.left=`${Math.cos(a)*r}px`;$('v1').style.top=`${Math.sin(a)*r}px`;
+  $('v2').style.left=`${Math.cos(a+Math.PI)*r}px`;$('v2').style.top=`${Math.sin(a+Math.PI)*r}px`;
+}
+function positionTwinTornado(){
+  if(typeName!=='Twin Tornado')return;
+  $('tornado2').style.left=twinOffset()+'px';$('tornado2').style.top='0px';
+}
+function applySecondaryTornadoDamage(t){
+  if(typeName==='Twin Tornado'){
+    tornadoCenters().slice(1).forEach(c=>{
+      houses.forEach(h=>{if(!h.destroyed&&Math.hypot(c.x-h.x,c.y-h.y)<t.radius*.65){h.destroyed=true;h.element.classList.add('destroyed')}});
+      civilians.forEach(p=>{
+        if(p.dead||p.inside)return;
+        if(Math.hypot(c.x-p.x,c.y-p.y)<t.radius*.6){
+          if(ef>=3){p.dead=true;p.state='dead'}else if(ef===2&&p.state==='healthy')p.state='injured';
+          p.element.className='civilian '+p.state;
+        }
+      });
+    });
+    return;
+  }
+  if(typeName!=='Multivortex')return;
+  const radius=t.radius*.42,rank={healthy:0,injured:1,critical:2};
+  const damageMPH=Math.floor(50+Math.random()*41);
+  secondaryVortexPositions().forEach(v=>{
+    houses.forEach(h=>{if(!h.destroyed&&Math.hypot(v.x-h.x,v.y-h.y)<radius){h.destroyed=true;h.element.classList.add('destroyed')}});
+    civilians.forEach(p=>{
+      if(p.dead||p.inside)return;
+      if(Math.hypot(v.x-p.x,v.y-p.y)<radius*.65){
+        const s=damageMPH>=80?'injured':damageMPH>=65?'critical':p.state;
+        if(rank[s]>rank[p.state]){p.state=s;p.element.className='civilian '+s}
+      }
+    });
+  });
+}
+function civiliansUpdate(t){
+  civilians.forEach(p=>{
+    if(p.dead||p.inside)return;
+    const c=nearestCenter(p.x,p.y);
+    let d=Math.hypot(c.x-p.x,c.y-p.y);
+    if(d<t.radius+250){
+      let dx=p.x-c.x,dy=p.y-c.y,l=Math.hypot(dx,dy)||1;
+      p.x+=dx/l*2.4;p.y+=dy/l*2.4;
+      let h=houses.find(h=>!h.destroyed&&Math.hypot(h.x-p.x,h.y-p.y)<75);
+      if(h){p.inside=true;p.house=h;p.element.classList.add('inside')}
+    }
+    p.x=Math.max(5,Math.min(innerWidth-5-twinOffset(),p.x));p.y=Math.max(5,Math.min(innerHeight-5,p.y));
+    p.element.style.left=p.x+'px';p.element.style.top=p.y+'px';
+  });
+}
+function buildings(t){
+  const centers=tornadoCenters();
+  houses.forEach(h=>{
+    if(!h.destroyed&&centers.some(c=>Math.hypot(c.x-h.x,c.y-h.y)<t.radius*.65)){
+      h.destroyed=true;h.element.classList.add('destroyed');
+    }
+  });
+  civilians.forEach(p=>{
+    if(!p.inside||!p.house||!p.house.destroyed)return;
+    let h=p.house;p.inside=false;p.house=null;p.element.classList.remove('inside');
+    p.x=h.x+(Math.random()*90-45);p.y=h.y+(Math.random()*90-45);
+    if(ef>=3){p.state='dead';p.dead=true}
+    else if(ef===2){if(Math.random()<.5){p.state='dead';p.dead=true}else p.state='critical'}
+    else p.state='healthy';
+    p.element.className='civilian '+p.state;p.element.style.left=p.x+'px';p.element.style.top=p.y+'px';
+  });
+}
+function chasersUpdate(t){chasers.forEach(c=>{
+if(c.state==='dead'||c.state==='injured')return;
+let center=nearestCenter(c.x,c.y),d=Math.hypot(center.x-c.x,center.y-c.y);
+if(c.state==='spinning'){
+ c.timer+=16.67;let a=c.timer/115,r=Math.max(18,t.radius*.55);c.x=center.x+Math.cos(a)*r;c.y=center.y+Math.sin(a)*r;c.element.style.transform=`translate(-50%,-50%) rotate(${c.timer*7}deg)`;
+ if(c.timer>=2000){
+  c.state=ef>=3?'dead':'injured';
+  if(c.state==='dead'){
+    c.element.classList.add('destroyedCar');
+    chaserImpactDetails.push('Sürücünün cansız bedeni bulundu');
+  }else{
+    c.element.classList.add('hiddenCar');
+    chaserImpactDetails.push('Etkilendi ancak tamamen ölmedi');
+  }
+  chaserCasualties++;
+  let a2=Math.atan2(c.y-center.y,c.x-center.x);
+  c.x=center.x+Math.cos(a2)*(t.radius+180);c.y=center.y+Math.sin(a2)*(t.radius+180);
+  c.element.style.transform='translate(-50%,-50%)';
+  // Yaralı/ölü chaser burada ASLA başka araca aktarılmaz.
+}
+ c.element.style.left=c.x+'px';c.element.style.top=c.y+'px';return;
+}
+if(c.state==='walking'){
+ let d2=Math.hypot(x-c.x,y-c.y);if(d2<t.radius+80){let dx=c.x-x,dy=c.y-y,l=Math.hypot(dx,dy)||1;c.x+=dx/l*2;c.y+=dy/l*2}if(c.state==='walking'&&d2>320&&Math.random()<.01)transfer(c);c.element.style.left=c.x+'px';c.element.style.top=c.y+'px';return;
+}
+if(c.color==='white'||c.color==='green'){if(d<360)flee(c,2.8);else randomDrive(c)}
+else if(c.color==='yellow'){if(Math.random()<.006){c.targetX=x+(Math.random()*500-250);c.targetY=y+(Math.random()*500-250)}move(c,1.4);if(d<220)flee(c,2.5)}
+else{if(Math.random()<.025){c.targetX=x+(Math.random()*260-130);c.targetY=y+(Math.random()*260-130)}move(c,2);if(d<t.radius+55)flee(c,3.5)}
+// Kırmızı/turuncu bazen çok yaklaşır, sonra hızla uzaklaşır.
+d=Math.hypot(x-c.x,y-c.y);
+if((c.color==='red'||c.color==='orange')&&d<70)flee(c,5);
+// Bazen araçtan inerler; indiklerinde araç yerinde kalır ve emoji belirir.
+if((c.color==='red'||c.color==='orange'||c.color==='yellow')&&c.timer<=0&&Math.random()<.003&&d>t.radius+120){c.state='walking';let mark=document.createElement('div');mark.className='carMarker';mark.textContent='🚗';mark.style.left=c.x+'px';mark.style.top=c.y+'px';$('map').appendChild(mark);c.element.classList.add('hiddenCar');}
+// Direkt araba çarpması: araç şeffaflaşır ve chaser başka chaser aracına geçer.
+if(d<t.radius*.42&&chasers.some(q=>q!==c&&q.state==='driving')){transfer(c);return}
+// Araç hortumun içine girerse 2 saniye dön.
+if(c.state==='driving'&&d<t.radius*.8){c.state='spinning';c.timer=0;c.element.classList.add('chaserSpin')}
+c.x=Math.max(20,Math.min(innerWidth-20,c.x));c.y=Math.max(20,Math.min(innerHeight-20,c.y));c.element.style.left=c.x+'px';c.element.style.top=c.y+'px';
+})}
+function flee(c,s){let dx=c.x-x,dy=c.y-y,l=Math.hypot(dx,dy)||1;c.x+=dx/l*s;c.y+=dy/l*s}function move(c,s){let dx=c.targetX-c.x,dy=c.targetY-c.y,l=Math.hypot(dx,dy);if(l>5){c.x+=dx/l*s;c.y+=dy/l*s}}function randomDrive(c){if(Math.random()<.01){c.targetX=Math.random()*innerWidth;c.targetY=Math.random()*innerHeight}move(c,1.2)}
+function transfer(c){if(c.state==='dead'||c.state==='injured')return;let o=chasers.find(q=>q!==c&&q.state==='driving'&&q.state!=='dead');if(o){c.x=o.x+35;c.y=o.y+15;c.state='driving';c.timer=0;c.element.classList.remove('hiddenCar');c.element.style.left=c.x+'px';c.element.style.top=c.y+'px'}}
+function calculateEF(){
+  if(mapCleared)return;
+  const destroyed=houses.filter(h=>h.destroyed).length;
+  const civilianDead=civilians.filter(p=>p.dead).length;
+  const chaserDead=chasers.filter(c=>c.state==='dead').length;
+  const allCiviliansDead=civilians.length>0&&civilianDead===civilians.length;
+  let next=ef;
+  if(destroyed>=5)next=Math.max(next,2);
+  if(destroyed>=6&&civilianDead>=3)next=Math.max(next,3);
+  if(destroyed>=12&&chaserDead>=2&&allCiviliansDead)next=Math.max(next,4);
+  if(destroyed>=houses.length&&allCiviliansDead&&chaserDead>=chasers.length)next=5;
+  if(next!==ef){ef=next;setEFVisual();}
+  if(ef===5)clearEverythingForEF5();
+}
+function trail(dt){
+  const distance= Math.hypot(jx,jy) * types[typeName].speed * dt/16.67;
+  trailLength+=distance;
+  trailT+=dt;
+  if(trailT<65)return;
+  trailT=0;
+  let e=document.createElement('div');
+  e.className='trailDot';
+  const trailColors={1:'#2bd65b',2:'#f1d438',3:'#f28a24',4:'#e43b3b',5:'#a83bd4'};
+  e.style.background=trailColors[ef]+'cc';
+  e.style.boxShadow=`0 0 8px ${trailColors[ef]}88`;
+  e.style.left=x+'px';e.style.top=y+'px';$('trail').appendChild(e);
+  let a=$('trail').querySelectorAll('.trailDot');if(a.length>700)a[0].remove();
+}
+function hud(){ $('ef').textContent='EF'+ef;$('mph').textContent=mph+' MPH';let r=Math.max(0,Math.ceil((end-performance.now())/1000));$('timer').textContent=String(Math.floor(r/60)).padStart(2,'0')+':'+String(r%60).padStart(2,'0') }
+function finish(){
+  jx=jy=0;
+  let dead=civilians.filter(p=>p.dead).length+chasers.filter(c=>c.state==='dead').length;
+  let light=civilians.filter(p=>p.state==='injured').length;
+  let severe=civilians.filter(p=>p.state==='critical').length;
+  let d=houses.filter(h=>h.destroyed).length;
+  let structural=d===houses.length?'Bütün evler yok edildi.':d>=houses.length/2?'Çoğu ev yok edildi.':d?'Yapısal hasar sınırlı.':'Yapısal hasar bulunamadı.';
+  let chaserDetails=chaserImpactDetails.length?chaserImpactDetails.map((v,i)=>`${i+1}. ${v}`).join('<br>'):'Hiçbir storm chaser etkilenmedi.';
+  $('analysisText').innerHTML=`<div class="line"><b>Harita:</b> ${cityName}</div><div class="line"><b>Tornado:</b> ${typeName}</div><div class="line"><b>EF:</b> EF${ef} — ${mph} MPH (${efRangeText(ef)})</div><div class="line"><b>Ölü sayısı:</b> ${dead}</div><div class="line"><b>Hafif yaralı:</b> ${light}</div><div class="line"><b>Ağır yaralı:</b> ${severe}</div><div class="line"><b>Yıkılan ev:</b> ${d}</div><div class="line"><b>Storm chaser etkilenmesi:</b> ${chaserCasualties}</div><div class="line"><b>Storm chaser etkilenme şekilleri:</b><br>${chaserDetails}</div><div class="line"><b>Yapısal hasar:</b> ${structural}</div><div class="line"><b>Süre:</b> ${fmt(types[typeName].time)}</div><div class="line"><b>İz uzunluğu:</b> ${Math.round(trailLength)} px</div><div class="line"><b>Maksimum genişlik:</b> ${Math.round(maxWidth)} px</div>`;
+  $('analysis').style.display='flex'
+}
+
+$('save').onclick=()=>{let r={name:$('name').value.trim()||'İsimsiz Hortum',city:cityName,type:typeName,ef,mph,trailLength:Math.round(trailLength),maxWidth:Math.round(maxWidth),dead:civilians.filter(p=>p.dead).length+chasers.filter(c=>c.state==='dead').length,injured:civilians.filter(p=>p.state==='injured').length,critical:civilians.filter(p=>p.state==='critical').length+chasers.filter(c=>c.state==='injured').length,destroyed:houses.filter(h=>h.destroyed).length,chasers:chaserCasualties,chaserDetails:chaserImpactDetails,time:types[typeName].time};records.unshift(r);localStorage.setItem('THPRecords',JSON.stringify(records));menu()};
+function showRecords(){$('menu').style.display='none';$('selection').style.display='block';$('game').style.display='none';$('title').textContent='HORTUM KAYITLARI';$('cards').innerHTML='';if(!records.length){$('cards').innerHTML='<div class="card"><h2>Henüz kayıt yok</h2><div class="cardInfo">Bir hortum oluştur ve analizini kaydet.</div></div>';return}records.forEach(r=>{let e=document.createElement('div');e.className='record';e.innerHTML=`<div class="recordTitle">${String(r.name).replace(/</g,'&lt;')}</div><br><div>Harita: ${r.city}</div><div>Tür: ${r.type}</div><div>EF: EF${r.ef} — ${r.mph||'-'} MPH</div><div>İz: ${r.trailLength||0} px | Maks. genişlik: ${r.maxWidth||0} px</div><br><div class="small">Ölü: ${r.dead} | Hafif yaralı: ${r.injured} | Ağır yaralı: ${r.critical} | Ev: ${r.destroyed} | Chaser: ${r.chasers} | Süre: ${fmt(r.time)}</div>${r.chaserDetails?.length?'<div class="small"><b>Chaser etkilenme şekilleri:</b><br>'+r.chaserDetails.map((v,i)=>(i+1)+'. '+v).join('<br>')+'</div>':''}`;$('cards').appendChild(e)})}
+let active=false;const joystick=$('joystick');joystick.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;active=true;joystick.setPointerCapture?.(e.pointerId);joy(e);e.preventDefault()},{passive:false});joystick.addEventListener('pointermove',e=>{if(active)joy(e)},{passive:false});joystick.addEventListener('pointerup',reset);joystick.addEventListener('pointercancel',reset);joystick.addEventListener('lostpointercapture',reset);window.addEventListener('pointerup',e=>{if(active)reset()});function joy(e){let r=joystick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=Math.max(1,(r.width/2)-29),l=Math.hypot(dx,dy);if(l>m){dx=dx/l*m;dy=dy/l*m}jx=dx/m;jy=dy/m;$('stick').style.left=`calc(50% + ${dx}px)`;$('stick').style.top=`calc(50% + ${dy}px)`;e.preventDefault()}function reset(){active=false;jx=jy=0;$('stick').style.left='50%';$('stick').style.top='50%'}
+const saveAction=$('save').onclick;function mobileButton(el,fn){let fired=false;el.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse'){fired=true;fn();setTimeout(()=>fired=false,0)}},{passive:true});el.addEventListener('click',e=>{if(fired){e.preventDefault();return}fn()})}mobileButton($('play'),citySelect);mobileButton($('records'),showRecords);mobileButton($('back'),menu);mobileButton($('analysisMenu'),menu);mobileButton($('save'),saveAction);menu();
+</script>
+</body>
+</html>
